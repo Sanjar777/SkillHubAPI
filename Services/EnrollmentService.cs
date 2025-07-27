@@ -11,6 +11,11 @@ public class EnrollmentService(SkillHubDbContext context) : IEnrollmentService
 
     public async Task EnrollAsync(int learnerId, int sessionId)
     {
+        if (learnerId <= 0 || sessionId <= 0)
+        {
+            throw new ArgumentException("Invalid learner or session ID");
+        }
+
         var exists = await _context.Enrollments.AnyAsync(e =>
             e.LearnerId == learnerId && e.SessionId == sessionId);
 

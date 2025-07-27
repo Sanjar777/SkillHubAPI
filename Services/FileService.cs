@@ -11,11 +11,21 @@ public class FileService(SkillHubDbContext context, IWebHostEnvironment env) : I
 
     public async Task<string> UploadAsync(IFormFile file, int sessionId)
     {
+        if (file == null || file.Length == 0)
+        {
+            throw new ArgumentException("File cannot be null or empty");
+        }
+        if (sessionId <= 0)
+        {
+            throw new ArgumentException("Invalid session ID");
+        }
+        
         var folderPath = Path.Combine(_env.WebRootPath, "uploads");
         Directory.CreateDirectory(folderPath);
 
         var fileName = $"{Guid.NewGuid()}_{file.FileName}";
         var filePath = Path.Combine(folderPath, fileName);
+
 
         using var stream = new FileStream(filePath, FileMode.Create);
         await file.CopyToAsync(stream);

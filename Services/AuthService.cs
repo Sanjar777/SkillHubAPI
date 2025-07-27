@@ -14,6 +14,11 @@ public class AuthService(SkillHubDbContext context) : IAuthService
 
     public async Task<string> RegisterAsync(UserRegisterDto dto)
     {
+        if (await _context.Users.AnyAsync(u => u.UserName == dto.UserName || u.Email == dto.Email))
+        {
+            throw new InvalidOperationException("Username or email already exists.");
+        }
+
         var user = new User
         {
             UserName = dto.UserName,
@@ -30,6 +35,11 @@ public class AuthService(SkillHubDbContext context) : IAuthService
 
     public async Task<string> LoginAsync(LoginDto dto)
     {
+        if (string.IsNullOrEmpty(dto.UserNameOrEmail) || string.IsNullOrEmpty(dto.Password))
+        {
+            throw new ArgumentException("Username or email and password must be provided.");
+        }
+
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.UserName == dto.UserNameOrEmail || u.Email == dto.UserNameOrEmail);
 
@@ -41,6 +51,7 @@ public class AuthService(SkillHubDbContext context) : IAuthService
 
     private string HashPassword(string password)
     {
+        
         using var sha = SHA256.Create();
         var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
         return Convert.ToBase64String(bytes);
