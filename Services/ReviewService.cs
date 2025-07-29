@@ -10,22 +10,17 @@ public class ReviewService(SkillHubDbContext context) : IReviewService
 {
     private readonly SkillHubDbContext _context = context;
 
-    public async Task LeaveReviewAsync(ReviewDto dto, int userId)
+    public async Task LeaveReviewAsync(ReviewDto dto)
     {
         if (dto == null)
         {
             throw new ArgumentNullException(nameof(dto), "Review DTO cannot be null");
         }
-        if (userId <= 0)
-        {
-            throw new ArgumentException("Invalid user ID");
-        }
         if (dto.SessionId <= 0)
         {
             throw new ArgumentException("Invalid session ID");
         }
-        var alreadyReviewed = await _context.Reviews.AnyAsync(r =>
-            r.SessionId == dto.SessionId && r.UserId == userId);
+        var alreadyReviewed = await _context.Reviews.AnyAsync(r => r.SessionId == dto.SessionId);
 
         if (alreadyReviewed)
         {
@@ -35,7 +30,6 @@ public class ReviewService(SkillHubDbContext context) : IReviewService
         var review = new Review
         {
             SessionId = dto.SessionId,
-            UserId = userId,
             Rating = dto.Rating,
             Comment = dto.Comment
         };

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SkillHubAPI.DTOs;
 using SkillHubAPI.Services.Interfaces;
@@ -6,6 +7,7 @@ namespace SkillHubAPI.Controllers;
 
 [ApiController]
 [Route("api/auth")]
+[Authorize(Policy = "UserAndHigher")]
 public class AuthController(IAuthService authService) : ControllerBase
 {
     private readonly IAuthService _authService = authService;
@@ -19,6 +21,6 @@ public class AuthController(IAuthService authService) : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDto dto)
     {
-        return Ok(await _authService.LoginAsync(dto));
+        return Ok(new { Token = await _authService.LoginAsync(dto) });
     }
 }

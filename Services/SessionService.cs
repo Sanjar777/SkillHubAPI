@@ -34,4 +34,4 @@ public class SessionService(SkillHubDbContext context) : ISessionService
 
     public async Task<Session?> GetByIdAsync(int id) =>
         await _context.Sessions.Include(s => s.Mentor).FirstOrDefaultAsync(s => s.Id == id);
-}
+} 

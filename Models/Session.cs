@@ -17,4 +17,4 @@ public class Session
     public ICollection<Enrollment> Enrollments { get; set; } = [];
     public ICollection<Review> Reviews { get; set; } = [];
     public ICollection<UploadedFile> UploadedFiles { get; set; } = [];
-}
+} 

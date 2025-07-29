@@ -57,4 +57,4 @@ public class SkillHubDbContext : DbContext
             .WithOne(uf => uf.Sessions)
             .HasForeignKey(uf => uf.SessionId);
     }
-}
+} 

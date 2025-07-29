@@ -56,4 +56,4 @@ public class AuthService(SkillHubDbContext context) : IAuthService
         var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
         return Convert.ToBase64String(bytes);
     }
-}
+} 

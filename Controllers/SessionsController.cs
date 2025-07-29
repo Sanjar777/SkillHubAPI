@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SkillHubAPI.DTOs;
 using SkillHubAPI.Services.Interfaces;
@@ -6,6 +7,7 @@ namespace SkillHubAPI.Controllers;
 
 [ApiController]
 [Route("api/sessions")]
+[Authorize(Policy = "UserAndHigher")]
 public class SessionsController(ISessionService sessionService) : ControllerBase
 {
     private readonly ISessionService _sessionService = sessionService;
@@ -16,9 +18,9 @@ public class SessionsController(ISessionService sessionService) : ControllerBase
         return Ok(await _sessionService.GetAllSessionsAsync());
     }
 
-    [HttpPost("{id}")]
-    public async Task<IActionResult> Create(int id, SessionDto dto)
+    [HttpPost("{mentorId}")]
+    public async Task<IActionResult> Create(int mentorId, SessionDto dto)
     {
-        return Ok(await _sessionService.CreateSessionAsync(dto, id));
+        return Ok(await _sessionService.CreateSessionAsync(dto, mentorId));
     }
 }

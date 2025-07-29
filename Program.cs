@@ -7,6 +7,9 @@ using SkillHubAPI.Models;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using SkillHubAPI.Services.Interfaces;
 using SkillHubAPI.Services;
+using SkillHubApi.Services.Interfaces;
+using SkillHubApi.Services;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,29 +23,30 @@ builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
-
-
-
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 // Add JWT Authentication (minimal config for now)
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options =>
     {
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = false
-        // For dev only. Configure properly for production.
-    };
-});
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new ArgumentNullException("Jwt:Key is missing in configuration.")))
+        };
+    });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("UserAndHigher", p =>
+        p.RequireRole("User", "Admin", "SuperAdmin"));
+    options.AddPolicy("AdminAndHigher", p =>
+        p.RequireRole("Admin", "SuperAdmin"));
+});
 
 // Add controllers and Swagger/OpenAPI
 builder.Services.AddControllers();
@@ -58,10 +62,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
